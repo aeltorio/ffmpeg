@@ -53,10 +53,31 @@ jobs:
                   ./ffprobe*
                   ./ffplay*
     release:
+        permissions:
+            id-token: write
+            contents: write
+            packages: write
+            attestations: write
         needs: build
         runs-on: ubuntu-latest
         steps:
             - name: Download artifacts
               uses: actions/download-artifact@v4
+
             - name: Display structure of downloaded files
               run: ls -R
+
+            - name: Zip binaries
+              run: |
+                zip -r macos_intel.zip ./build-macos-13/*
+                zip -r macos_arm64.zip ./build-macos-latest/*
+                zip -r linux.zip ./build-ubuntu-latest/*
+
+            - name: Upload Release Assets binaries
+              uses: softprops/action-gh-release@v2
+              continue-on-error: true
+              with:
+                files: |
+                    macos_intel.zip
+                    macos_arm64.zip
+                    linux.zip
