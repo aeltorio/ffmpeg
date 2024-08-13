@@ -1,0 +1,54 @@
+name: Build
+
+on:
+    push:
+        branches:
+            - gopro/7.0
+    pull_request:
+        branches:
+            - gopro/7.0
+    workflow_dispatch:
+
+jobs:
+    build:
+        runs-on: ${{ matrix.os }}
+
+        strategy:
+            matrix:
+                os: [macos-13, macos-latest, ubuntu-latest]
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Set up build environment
+              if: matrix.os == 'macos-latest'
+              run: |
+                brew install opencl-headers
+
+            - name: Set up build environment
+              if: matrix.os == 'ubuntu-latest'
+              run: |
+                sudo apt-get update
+                sudo apt-get install -y opencl-headers
+
+            - name: Configure and build on macOS
+              if: matrix.os == 'macos-latest'
+              run: |
+                ./configure --enable-opencl
+                make -j$(sysctl -n hw.ncpu)
+      
+            - name: Configure and build on Linux
+              if: matrix.os == 'ubuntu-latest'
+              run: |
+                ./configure --enable-opencl
+                make -j$(nproc)
+
+            - name: Upload artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                name: build-${{ matrix.os }}
+                path: |
+                  ./ffmpeg
+                  ./ffprobe
+                  ./ffplay
