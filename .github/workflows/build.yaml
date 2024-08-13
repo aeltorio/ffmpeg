@@ -1,4 +1,11 @@
-name: Build
+# (c) 2024, Ronan LE MEILLAT
+# This file is part of the FFmpeg project.
+# FFmpeg is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+name: Build and Release
 
 on:
     push:
@@ -61,6 +68,10 @@ jobs:
         needs: build
         runs-on: ubuntu-latest
         steps:
+            - name: Get current date
+              id: getdate
+              run: echo "::set-output name=getdate::$(date +'%Y.%m.%d-%H%M')"
+              
             - name: Download artifacts
               uses: actions/download-artifact@v4
 
@@ -73,11 +84,19 @@ jobs:
                 zip -r macos_arm64.zip ./build-macos-latest/*
                 zip -r linux.zip ./build-ubuntu-latest/*
 
-            - name: Upload Release Assets binaries
-              uses: softprops/action-gh-release@v2
-              continue-on-error: true
+            - name: Create Release
+              id: create_release
+              uses: actions/create-release@v1
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
-                files: |
-                    macos_intel.zip
-                    macos_arm64.zip
-                    linux.zip
+                tag_name: v${{ steps.getdate.outputs.getdate }}
+                release_name: Release ${{ steps.getdate.outputs.getdate }}
+                draft: false
+                prerelease: false
+
+            - name: Upload Release Assets
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                gh release upload v${{ steps.getdate.outputs.getdate }} *.zip
