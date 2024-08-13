@@ -22,7 +22,7 @@ jobs:
               uses: actions/checkout@v4
 
             - name: Set up build environment
-              if: matrix.os == 'macos-latest'
+              if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
               run: |
                 brew install opencl-headers yasm
 
