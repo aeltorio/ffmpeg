@@ -24,13 +24,13 @@ jobs:
             - name: Set up build environment
               if: matrix.os == 'macos-latest'
               run: |
-                brew install opencl-headers
+                brew install opencl-headers yasm
 
             - name: Set up build environment
               if: matrix.os == 'ubuntu-latest'
               run: |
                 sudo apt-get update
-                sudo apt-get install -y opencl-headers yasm
+                sudo apt-get install -y opencl-headers opencl-dev yasm
 
             - name: Configure and build on macOS
               if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
