@@ -49,6 +49,14 @@ jobs:
               with:
                 name: build-${{ matrix.os }}
                 path: |
-                  ./ffmpeg
-                  ./ffprobe
-                  ./ffplay
+                  ./ffmpeg*
+                  ./ffprobe*
+                  ./ffplay*
+    release:
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Download artifacts
+              uses: actions/download-artifact@v4
+            - name: Display structure of downloaded files
+              run: ls -R
