@@ -30,7 +30,7 @@ jobs:
               if: matrix.os == 'ubuntu-latest'
               run: |
                 sudo apt-get update
-                sudo apt-get install -y opencl-headers
+                sudo apt-get install -y opencl-headers yasm
 
             - name: Configure and build on macOS
               if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
